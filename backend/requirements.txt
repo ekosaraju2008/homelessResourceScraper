@@ -1,1 +1,6 @@
-
+flask
+pymongo
+flask-cors
+geopy
+python-dotenv
+gunicorn
