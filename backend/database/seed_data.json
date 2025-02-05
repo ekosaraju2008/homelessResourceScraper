@@ -1,1 +1,21 @@
+[
+    {
+        "name": "Hope Shelter",
+        "type": "shelter",
+        "address": "123 Hope St, New York, NY",
+        "latitude": 40.7128,
+        "longitude": -74.0060,
+        "eligibility": "Open to all",
+        "hours": "24/7"
+    },
+    {
+        "name": "Food Bank NYC",
+        "type": "food_bank",
+        "address": "456 Care Ave, New York, NY",
+        "latitude": 40.7306,
+        "longitude": -73.9352,
+        "eligibility": "Low-income only",
+        "hours": "Mon-Fri 9AM-5PM"
+    }
+]
 
