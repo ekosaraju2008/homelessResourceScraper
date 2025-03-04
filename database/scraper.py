@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 # 🤖 Configure Google Gemini API
-genai.configure(api_key='AIzaSyBOaVvyuqnPOg4II9zF3oPjN8J0x8O16AM')
+genai.configure(api_key='')
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 
