@@ -2,6 +2,11 @@ from flask import Flask
 from flask_cors import CORS
 from config.settings import Config
 from routes.api_routes import api_bp
+import os
+
+# Debug: print startup info
+print("📦 Booting Flask App...")
+print("📦 MONGO_URI:", os.getenv("MONGO_URI"))
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -10,7 +15,10 @@ app = Flask(__name__)
 CORS(app)
 
 # Load configuration settings from settings.py
-app.config.from_object(Config)
+try:
+    app.config.from_object(Config)
+except Exception as e:
+    print("❌ Error loading config:", e)
 
 # Register API routes
 app.register_blueprint(api_bp)
