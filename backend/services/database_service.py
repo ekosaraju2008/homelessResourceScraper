@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from config.settings import Config
+from backend.config.settings import Config 
 
 # Connect to MongoDB Atlas
 client = MongoClient(Config.MONGO_URI)
