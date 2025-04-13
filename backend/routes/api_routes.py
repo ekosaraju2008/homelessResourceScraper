@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from services.database_service import get_resources
-from services.geolocation import calculate_distance
+from backend.services.database_service import get_resources
+from backend.services.geolocation import calculate_distance
 import os
 
 # Define a Blueprint (modular routing)
