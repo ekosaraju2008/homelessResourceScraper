@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.database_service import get_resources
 from services.geolocation import calculate_distance
+import os
 
 # Define a Blueprint (modular routing)
 api_bp = Blueprint('api', __name__)
@@ -41,3 +42,11 @@ def fetch_resources():
 def health_check():
     """Simple endpoint to check if the API is running"""
     return jsonify({"status": "API is running"}), 200
+
+@api_bp.route("/test-env", methods=["GET"])
+def test_env():
+    """Check if the MONGO_URI environment variable is accessible"""
+    mongo_uri = os.getenv("MONGO_URI")
+    return jsonify({
+        "MONGO_URI": mongo_uri if mongo_uri else "❌ Not found"
+    })
