@@ -29,5 +29,6 @@ def home():
     return {"message": "Homeless Resource API is running!"}, 200
 
 if __name__ == "__main__":
-    # Start the Flask app
-    app.run(debug=Config.DEBUG)
+    # Heroku requires binding to 0.0.0.0 and $PORT
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=Config.DEBUG)
