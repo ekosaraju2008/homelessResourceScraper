@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
-from config.settings import Config
-from routes.api_routes import api_bp
+from backend.config.settings import Config
+from backend.routes.api_routes import api_bp
 import os
 
 # Debug: print startup info
