@@ -12,29 +12,35 @@ def fetch_resources():
     user_lat = request.args.get("latitude", type=float)
     user_lon = request.args.get("longitude", type=float)
 
+    print(f"📥 Request: type={resource_type}, lat={user_lat}, lon={user_lon}")
+
     # Fetch all resources matching the service type
     resources = get_resources(resource_type)
+    print(f"📦 Total resources with '{resource_type}': {len(resources)}")
 
-    print(f"🔍 Found {len(resources)} total resources for type '{resource_type}'")
+    # If no lat/lon, return all results for that type
+    if user_lat is None or user_lon is None:
+        return jsonify(resources)
 
-    # Filter and sort by distance if location is provided
-    if user_lat is not None and user_lon is not None:
-        user_location = (user_lat, user_lon)
-        filtered = []
+    user_location = (user_lat, user_lon)
+    nearby = []
 
-        for r in resources:
-            try:
-                if "latitude" in r and "longitude" in r:
-                    r["distance"] = calculate_distance(user_location, (r["latitude"], r["longitude"]))
-                    if r["distance"] <= 50:  # You can adjust the radius
-                        filtered.append(r)
-            except Exception as e:
-                print(f"❌ Error calculating distance for {r.get('site_name', 'unknown')}: {e}")
+    for r in resources:
+        try:
+            lat, lon = r.get("latitude"), r.get("longitude")
+            if lat is not None and lon is not None:
+                distance = calculate_distance(user_location, (lat, lon))
+                r["distance"] = distance
+                if distance <= 50:
+                    nearby.append(r)
+        except Exception as e:
+            print(f"❌ Distance calc failed for {r.get('site_name')}: {e}")
 
-        resources = sorted(filtered, key=lambda x: x["distance"])
-        print(f"✅ Returning {len(resources)} filtered resources within 50 miles")
+    nearby = sorted(nearby, key=lambda x: x["distance"])
+    print(f"✅ Found {len(nearby)} nearby resources within 50 miles")
 
-    return jsonify(resources)
+    return jsonify(nearby)
+
 
 
 @api_bp.route("/health", methods=["GET"])
