@@ -9,16 +9,7 @@ resources_collection = db.resources
 
 def get_resources(resource_type=None):
     """
-    Fetch resources from MongoDB based on type.
-    If no type is provided, fetch all resources.
-    :param resource_type: (str) e.g., "shelter", "food", etc.
-    :return: List of matching resources
+    Fetch resources from MongoDB based on service type.
     """
-    if resource_type:
-        # Match substring inside the stringified list
-        regex = re.compile(rf"\b{re.escape(resource_type)}\b", re.IGNORECASE)
-        query = {"services": regex}
-    else:
-        query = {}
-
+    query = {"services": resource_type} if resource_type else {}
     return list(resources_collection.find(query, {"_id": 0}))
