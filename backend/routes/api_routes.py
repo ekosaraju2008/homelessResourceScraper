@@ -8,35 +8,34 @@ api_bp = Blueprint('api', __name__)
 
 @api_bp.route("/resources", methods=["GET"])
 def fetch_resources():
-    """
-    Fetch shelters, food banks, or other resources based on:
-      - type (shelter, food, medical)
-      - optional user location (latitude & longitude)
-    
-    Example Request:
-      GET /resources?type=shelter&latitude=40.7128&longitude=-74.0060
-
-    Returns:
-      JSON list of matching resources (sorted by proximity if location provided)
-    """
     resource_type = request.args.get("type")
     user_lat = request.args.get("latitude", type=float)
     user_lon = request.args.get("longitude", type=float)
 
-    # Fetch matching resources from MongoDB
+    # Fetch all resources matching the service type
     resources = get_resources(resource_type)
 
-    # If user provided location, calculate distances and sort results
-    if user_lat and user_lon:
-        for resource in resources:
-            resource["distance"] = calculate_distance(
-                (user_lat, user_lon), 
-                (resource["latitude"], resource["longitude"])
-            )
-        # Sort resources by closest distance
-        resources = sorted(resources, key=lambda x: x["distance"])
+    print(f"🔍 Found {len(resources)} total resources for type '{resource_type}'")
+
+    # Filter and sort by distance if location is provided
+    if user_lat is not None and user_lon is not None:
+        user_location = (user_lat, user_lon)
+        filtered = []
+
+        for r in resources:
+            try:
+                if "latitude" in r and "longitude" in r:
+                    r["distance"] = calculate_distance(user_location, (r["latitude"], r["longitude"]))
+                    if r["distance"] <= 50:  # You can adjust the radius
+                        filtered.append(r)
+            except Exception as e:
+                print(f"❌ Error calculating distance for {r.get('site_name', 'unknown')}: {e}")
+
+        resources = sorted(filtered, key=lambda x: x["distance"])
+        print(f"✅ Returning {len(resources)} filtered resources within 50 miles")
 
     return jsonify(resources)
+
 
 @api_bp.route("/health", methods=["GET"])
 def health_check():
