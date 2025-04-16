@@ -12,34 +12,31 @@ def fetch_resources():
     user_lat = request.args.get("latitude", type=float)
     user_lon = request.args.get("longitude", type=float)
 
-    print(f"📥 Request: type={resource_type}, lat={user_lat}, lon={user_lon}")
+    print(f"📥 Request received: type={resource_type}, lat={user_lat}, lon={user_lon}")
 
-    # Fetch all resources matching the service type
+    # Fetch all resources of that type
     resources = get_resources(resource_type)
     print(f"📦 Total resources with '{resource_type}': {len(resources)}")
 
-    # If no lat/lon, return all results for that type
-    if user_lat is None or user_lon is None:
-        return jsonify(resources)
+    if user_lat is not None and user_lon is not None:
+        user_location = (user_lat, user_lon)
+        filtered = []
 
-    user_location = (user_lat, user_lon)
-    nearby = []
+        for r in resources:
+            try:
+                if "latitude" in r and "longitude" in r:
+                    r["distance"] = calculate_distance(user_location, (r["latitude"], r["longitude"]))
+                    if r["distance"] <= 50:  # Radius filter
+                        filtered.append(r)
+            except Exception as e:
+                print(f"❌ Error for {r.get('site_name')}: {e}")
 
-    for r in resources:
-        try:
-            lat, lon = r.get("latitude"), r.get("longitude")
-            if lat is not None and lon is not None:
-                distance = calculate_distance(user_location, (lat, lon))
-                r["distance"] = distance
-                if distance <= 50:
-                    nearby.append(r)
-        except Exception as e:
-            print(f"❌ Distance calc failed for {r.get('site_name')}: {e}")
+        resources = sorted(filtered, key=lambda x: x["distance"])
+        print(f"✅ Found {len(resources)} nearby shelters:")
+        for i, r in enumerate(resources[:5]):
+            print(f"{i+1}. {r['site_name']} - {r['distance']:.2f} miles away")
 
-    nearby = sorted(nearby, key=lambda x: x["distance"])
-    print(f"✅ Found {len(nearby)} nearby resources within 50 miles")
-
-    return jsonify(nearby)
+    return jsonify(resources)
 
 
 
